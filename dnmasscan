@@ -1,0 +1,48 @@
+#!/bin/bash
+
+if [ "$#" -lt 2 ]; then
+  echo "Usage: $(basename -- $0) input_file dns_output_file [masscan_options]"
+  echo
+  echo "  input_file:       path to file containing domain names to resolve and scan"
+  echo "  dns_output_file:  path to the file to store the DNS lookups in"
+  echo "  masscan_options:  standard masscan options to use (excluding address range)."
+  echo "                    If not specified, will run masscan using the defaults of: "
+  echo "                    -p1-65535 -oG masscan.log --rate=500"
+  echo
+  exit
+fi
+
+dns_output=""
+ip_addresses=""
+echo "[*] Resolving domains..."
+
+while read domain; do
+  dig_results=$(dig "$domain" +short)
+  dns_output="$dns_output$domain\n"
+
+  for ((i=1; i <${#domain}; i++)); do dns_output="$dns_output="; done
+   dns_output="$dns_output=\n"
+
+  while read address; do
+    dns_output="$dns_output$address\n"
+    ip_addresses="$ip_addresses$address,"
+  done <<< "$dig_results"
+
+  dns_output="$dns_output\n"
+done < "$1"
+
+echo -en "$dns_output" > "$2"
+echo "[*] Saved resolved addresses to $2"
+
+echo "[*] Launching masscan..."
+
+ip_addresses=$(echo -n "$ip_addresses" | sed 's/\(,\)$//')
+
+if [ "$#" -eq 2 ]; then
+  echo "[*] Using default options: -p1-65535 -oG masscan.log --rate=500"
+  echo "------------------------"
+  masscan -p1-65535 -oG masscan.log --rate=500 "$ip_addresses"
+else
+  echo "------------------------"
+  masscan "${@:3}" "$ip_addresses"
+fi
