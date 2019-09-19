@@ -17,7 +17,7 @@ ip_addresses=""
 echo "[*] Resolving domains..."
 
 while read domain; do
-  dig_results=$(dig "$domain" +short)
+  dig_results=$(dig "$domain" +short | grep -oP "([0-9]{1,3}\.){3}[0-9]{1,3}")
   dns_output="$dns_output$domain\n"
 
   for ((i=1; i <${#domain}; i++)); do dns_output="$dns_output="; done
