@@ -1,4 +1,4 @@
-dnmasscan <a href="https://www.patreon.com/rastating"><img src="https://img.shields.io/badge/patreon-support_this_project-orange" alt="Patreon" /></a>
+dnmasscan
 =========
 dnmasscan is a bash script to automate resolving a file of domain names and subsequentlly scanning them using masscan.
 
