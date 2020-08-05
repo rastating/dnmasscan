@@ -24,8 +24,10 @@ while read domain; do
    dns_output="$dns_output=\n"
 
   while read address; do
-    dns_output="$dns_output$address\n"
-    ip_addresses="$ip_addresses$address,"
+    if [[ $address =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+      dns_output="$dns_output$address\n"
+      ip_addresses="$ip_addresses$address,"
+    fi
   done <<< "$dig_results"
 
   dns_output="$dns_output\n"
