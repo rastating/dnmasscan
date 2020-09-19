@@ -25,7 +25,7 @@ while read domain; do
 
   while read address; do
     dns_output="$dns_output$address\n"
-    ip_addresses="$ip_addresses$address,"
+    ip_addresses="$ip_addresses$address\n"
   done <<< "$dig_results"
 
   dns_output="$dns_output\n"
@@ -36,12 +36,11 @@ echo "[*] Saved resolved addresses to $2"
 
 echo "[*] Launching masscan..."
 
-ip_addresses=$(echo -n "$ip_addresses" | sed 's/\(,\)$//')
 
 if [ "$#" -eq 2 ]; then
   echo "[*] Using default options: -p1-65535 -oG masscan.log --rate=500"
   echo "------------------------"
-  masscan -p1-65535 -oG masscan.log --rate=500 "$ip_addresses"
+  masscan -p1-65535 -iL $ip_addresses --max-rate 1800 -oG masscan.log 
 else
   echo "------------------------"
   masscan "${@:3}" "$ip_addresses"
